@@ -20,3 +20,6 @@ Route::get('/', function () {
 Route::get('/about', function () {
     return '<h1>Về chúng tôi</h1><p>Đại học Phú Xuân</p>';
 });
+
+use App\Http\Controllers\BlogController;
+Route::get('/', [BlogController::class, 'index']);
