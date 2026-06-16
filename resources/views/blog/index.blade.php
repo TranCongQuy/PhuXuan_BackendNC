@@ -1,26 +1,34 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <title>Phú Xuân Blog</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; }
-        .post-card { border: 1px solid #ddd; padding: 16px; margin-bottom: 16px; border-radius: 6px; }
-        .post-meta { color: #666; font-size: 13px; margin-top: 6px; }
-    </style>
-</head>
-<body>
-    <h1>Phú Xuân Blog</h1>
-    <p>Tổng số bài viết: <strong>{{ count($posts) }}</strong></p>
-    @forelse ($posts as $post)
-        <div class="post-card">
-            <h2>{{ $post['title'] }}</h2>
-            <div class="post-meta">
-                Tác giả: {{ $post['author'] }} | Ngày: {{ $post['date'] }}
-            </div>
-        </div>
-    @empty
-        <p>Chưa có bài viết nào.</p>
-    @endforelse
-</body>
-</html>
+@extends('layouts.app')
+@section('title', 'Blog – Danh sách Bài viết')
+@section('page-header')
+ <h1>📝 Blog</h1>
+ <p class="mb-0">{{ count($articles) }} bài viết</p>
+@endsection
+@section('content')
+ <div class="d-flex justify-content-between align-items-center mb-4">
+ <h2 class="h4 mb-0">Tất cả bài viết</h2>
+ <a href="{{ route('articles.create') }}" class="btn btn-primary">
+ + Thêm bài viết
+ </a>
+ </div>
+ @forelse($articles as $article)
+ <div class="card mb-3 shadow-sm">
+ <div class="card-body">
+ <h5 class="card-title">
+ <a href="{{ route('articles.show', $article['id']) }}"
+ class="text-decoration-none">
+ {{ $article['title'] }}
+ </a>
+ </h5>
+ <p class="card-text text-muted small">
+ ✍ {{ $article['author'] }} &nbsp;•&nbsp; 📅 {{
+$article['date'] }}
+ </p>
+ <a href="{{ route('articles.show', $article['id']) }}"
+ class="btn btn-outline-primary btn-sm">Đọc tiếp →</a>
+ </div>
+ </div>
+ @empty
+ <div class="alert alert-info">Chưa có bài viết nào.</div>
+ @endforelse
+@endsection
