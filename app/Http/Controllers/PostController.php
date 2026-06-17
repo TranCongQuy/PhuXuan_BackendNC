@@ -3,94 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Post;
 
 class PostController extends Controller
 {
     public function index()
     {
-        $posts = collect([
-            (object) [
-                'id' => 1,
-                'title' => 'Giới thiệu Laravel Framework',
-                'body' => 'Laravel là một PHP framework mạnh mẽ, cú pháp đẹp, phù hợp phát triển web hiện đại.',
-                'author' => 'Nguyễn Văn An',
-                'status' => 'published',
-                'created_at' => now()->subDays(5),
-            ],
-            (object) [
-                'id' => 2,
-                'title' => 'Routing trong Laravel - Toàn tập',
-                'body' => 'Routing là cơ chế ánh xạ URL đến xử lý logic. Laravel hỗ trợ route parameter, named route, group route.',
-                'author' => 'Trần Thị Bình',
-                'status' => 'published',
-                'created_at' => now()->subDays(3),
-            ],
-            (object) [
-                'id' => 3,
-                'title' => 'Blade Templates - Hướng dẫn chi tiết',
-                'body' => 'Blade là template engine mạnh mẽ với cú pháp đẹp, hỗ trợ layout kế thừa, component.',
-                'author' => 'Lê Văn Cường',
-                'status' => 'draft',
-                'created_at' => now()->subDay(),
-            ],
-            (object) [
-                'id' => 4,
-                'title' => 'Eloquent ORM - Làm việc với Database',
-                'body' => 'Eloquent là ORM của Laravel, giúp tương tác với database một cách trực quan và dễ dàng.',
-                'author' => 'Phạm Thị Dung',
-                'status' => 'published',
-                'created_at' => now(),
-            ],
-        ]);
-
+        $posts = Post::latest()->paginate(10);
         return view('posts.index', compact('posts'));
-    }
-    public function show($id)
-    {
-        // Dữ liệu giả (giống với trong index)
-        $posts = collect([
-            (object) [
-                'id' => 1,
-                'title' => 'Giới thiệu Laravel Framework',
-                'body' => 'Laravel là một PHP framework mạnh mẽ, cú pháp đẹp, phù hợp phát triển web hiện đại.',
-                'author' => 'Nguyễn Văn An',
-                'status' => 'published',
-                'created_at' => now()->subDays(5),
-            ],
-            (object) [
-                'id' => 2,
-                'title' => 'Routing trong Laravel - Toàn tập',
-                'body' => 'Routing là cơ chế ánh xạ URL đến xử lý logic. Laravel hỗ trợ route parameter, named route, group route.',
-                'author' => 'Trần Thị Bình',
-                'status' => 'published',
-                'created_at' => now()->subDays(3),
-            ],
-            (object) [
-                'id' => 3,
-                'title' => 'Blade Templates - Hướng dẫn chi tiết',
-                'body' => 'Blade là template engine mạnh mẽ với cú pháp đẹp, hỗ trợ layout kế thừa, component.',
-                'author' => 'Lê Văn Cường',
-                'status' => 'published',
-                'created_at' => now()->subDays(1),
-            ],
-            (object) [
-                'id' => 4,
-                'title' => 'Eloquent ORM - Làm việc với Database',
-                'body' => 'Eloquent là ORM của Laravel, giúp tương tác với database một cách trực quan và dễ dàng.',
-                'author' => 'Phạm Thị Dung',
-                'status' => 'draft',
-                'created_at' => now(),
-            ],
-        ]);
-
-        // Tìm bài viết theo id
-        $post = $posts->firstWhere('id', (int) $id);
-
-        if (!$post) {
-            abort(404, 'Bài viết không tồn tại');
-        }
-
-        return view('posts.show', compact('post'));
     }
 
     public function create()
@@ -100,21 +20,69 @@ class PostController extends Controller
 
     public function store(Request $request)
     {
-        return redirect()->route('posts.index');
+        $validated = $request->validate(
+            // Tham số 1: Rules
+            [
+                'title' => 'required|string|min:5|max:255',
+                'content' => 'required|string|min:10',
+            ],
+            // Tham số 2: Custom Messages (tiếng Việt)
+            [
+                'title.required' => 'Tiêu đề bài viết không được để trống.',
+                'title.min' => 'Tiêu đề phải có ít nhất :min ký tự.',
+                'title.max' => 'Tiêu đề không được vượt quá :max ký tự.',
+                'content.required' => 'Nội dung bài viết không được để trống.',
+                'content.min' => 'Nội dung phải có ít nhất :min ký tự.',
+            ]
+        );
+
+        Post::create([
+            'title' => $validated['title'],
+            'content' => $validated['content'],
+            'user_id' => 1,
+        ]);
+
+        return redirect()->route('posts.index')
+            ->with('success', 'Tạo bài viết thành công!');
+    }
+    public function show(Post $post)
+    {
+        return view('posts.show', compact('post'));
     }
 
-    public function edit($id)
+    public function edit(Post $post)
     {
-        abort(404, 'Trang chỉnh sửa chưa được xây dựng.');
+        return view('posts.edit', compact('post'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Post $post)
     {
-        return redirect()->route('posts.index');
+        $validated = $request->validate(
+            // Tham số 1: Rules
+            [
+                'title' => 'required|string|min:5|max:255',
+                'content' => 'required|string|min:10',
+            ],
+            // Tham số 2: Custom Messages (tiếng Việt)
+            [
+                'title.required' => 'Tiêu đề bài viết không được để trống.',
+                'title.min' => 'Tiêu đề phải có ít nhất :min ký tự.',
+                'title.max' => 'Tiêu đề không được vượt quá :max ký tự.',
+                'content.required' => 'Nội dung bài viết không được để trống.',
+                'content.min' => 'Nội dung phải có ít nhất :min ký tự.',
+            ]
+        );
+
+        $post->update($validated);
+
+        return redirect()->route('posts.show', $post)
+            ->with('success', 'Cập nhật bài viết thành công!');
     }
 
-    public function destroy($id)
+    public function destroy(Post $post)
     {
-        return redirect()->route('posts.index');
+        $post->delete();
+        return redirect()->route('posts.index')
+            ->with('success', 'Đã xóa bài viết.');
     }
 }

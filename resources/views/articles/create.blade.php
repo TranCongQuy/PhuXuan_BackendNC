@@ -1,35 +1,64 @@
-<!-- resources/views/articles/create.blade.php -->
-<!DOCTYPE html>
-<html lang="vi">
-<head>
- <meta charset="UTF-8">
- <title>Tạo bài viết mới</title>
- <style>
- body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px
-auto; padding: 0 20px; }
- input, textarea { width: 100%; padding: 8px; margin-top: 4px; border:
-1px solid #ccc; border-radius: 4px; }
- label { font-weight: bold; display: block; margin-top: 16px; }
- button { margin-top: 20px; padding: 10px 24px; background: #2E75B6;
-color: white;
- border: none; border-radius: 4px; cursor: pointer; }
- </style>
-</head>
-<body>
- <h1>✍ Tạo bài viết mới</h1>
- <!-- Lưu ý: form này chưa có action – sẽ bổ sung ở Buổi 3 -->
- <form>
- @csrf
- <label>Tiêu đề</label>
- <input type="text" name="title" placeholder="Nhập tiêu đề bài viết...">
- <label>Tác giả</label>
- <input type="text" name="author" placeholder="Tên tác giả">
- <label>Nội dung</label>
- <textarea name="content" rows="8" placeholder="Viết nội
-dung..."></textarea>
- <button type="submit">Đăng bài</button>
- </form>
- <br>
- <a href="{{ route('articles.index') }}">← Quay lại</a>
-</body>
-</html>
+@extends('layouts.app')
+
+@section('title', 'Tạo bài viết mới')
+
+@section('content')
+<div class="container mt-4" style="max-width: 760px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>✏️ Tạo bài viết mới</h2>
+        <a href="{{ route('posts.index') }}" class="btn btn-outline-secondary">
+            ← Quay lại danh sách
+        </a>
+    </div>
+
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <strong>⚠ Vui lòng kiểm tra lại các trường sau:</strong>
+            <ul class="mb-0 mt-2">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    @if (session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <form method="POST" action="{{ route('posts.store') }}">
+                @csrf
+                <div class="mb-4">
+                    <label for="title" class="form-label fw-bold">Tiêu đề bài viết <span class="text-danger">*</span></label>
+                    <input type="text" id="title" name="title" value="{{ old('title') }}"
+                           class="form-control @error('title') is-invalid @enderror"
+                           placeholder="Ví dụ: Hướng dẫn cài đặt Laravel 10...">
+                    @error('title')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                    <div class="form-text text-muted">Tối thiểu 5 ký tự, tối đa 255 ký tự.</div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="content" class="form-label fw-bold">Nội dung <span class="text-danger">*</span></label>
+                    <textarea id="content" name="content" rows="8"
+                              class="form-control @error('content') is-invalid @enderror"
+                              placeholder="Nhập nội dung bài viết...">{{ old('content') }}</textarea>
+                    @error('content')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                    <div class="form-text text-muted">Tối thiểu 10 ký tự.</div>
+                </div>
+
+                <hr>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary px-4">💾 Lưu bài viết</button>
+                    <a href="{{ route('posts.index') }}" class="btn btn-light">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endsection
