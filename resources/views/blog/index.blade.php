@@ -24,8 +24,7 @@
  ✍ {{ $article['author'] }} &nbsp;•&nbsp; 📅 {{
 $article['date'] }}
  </p>
- <a href="{{ route('articles.show', $article['id']) }}"
- class="btn btn-outline-primary btn-sm">Đọc tiếp →</a>
+ <a href="{{ route('articles.show', $article['id']) }}" class="btn btn-outline-primary btn-sm">Đọc tiếp →</a>
  </div>
  </div>
  @empty

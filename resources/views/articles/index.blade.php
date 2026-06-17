@@ -21,11 +21,7 @@ auto; padding: 0 20px; }
  <hr>
  @forelse($articles as $article)
  <div class="article-card">
- <h3>
- <a href="{{ route('articles.show', $article['id']) }}">
- {{ $article['title'] }}
- </a>
- </h3>
+ <h3><a href="{{ route('articles.show', $article['id']) }}">{{ $article['title'] }}</a></h3>
  <p class="meta">
  ✍ {{ $article['author'] }} • 📅 {{ $article['date'] }}
  </p>
@@ -33,8 +29,7 @@ auto; padding: 0 20px; }
  @empty
  <p>Chưa có bài viết nào.</p>
  @endforelse
- <a href="{{ route('articles.create') }}" class="btn">+ Thêm bài viết
-mới</a>
+<a href="{{ route('articles.create') }}" class="btn">Thêm bài viết mới</a>
  <br><br>
  <a href="{{ route('home') }}">← Trang chủ</a>
 </body>

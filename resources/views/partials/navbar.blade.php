@@ -9,7 +9,7 @@
                 <li class="nav-item"><a class="nav-link" href="{{ route('home') }}">Trang chủ</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('about') }}">Giới thiệu</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('articles.index') }}">Bài viết</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ route('blog.index') }}">Blog</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ route('posts.index') }}">Blog</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('shop.products') }}">Cửa hàng</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('contact') }}">Liên hệ</a></li>
             </ul>

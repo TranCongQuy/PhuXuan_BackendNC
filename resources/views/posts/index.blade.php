@@ -11,8 +11,10 @@
         <div class="card mb-3 shadow-sm">
             <div class="card-body">
                 <h5 class="card-title">
-                    #{{ $loop->iteration }}. {{ $post->title }}
-                </h5>
+    <a href="{{ route('posts.show', $post->id) }}" class="text-decoration-none">
+        #{{ $loop->iteration }}. {{ $post->title }}
+    </a>
+</h5>
                 <p class="card-text">{{ Str::limit($post->body, 100) }}</p>
                 <p class="text-muted small">
                     ✍ {{ $post->author }} · 

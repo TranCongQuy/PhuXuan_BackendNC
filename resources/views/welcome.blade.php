@@ -14,7 +14,7 @@
                 <div class="card-body">
                     <h5 class="card-title">📝 Blog</h5>
                     <p class="card-text">Xem các bài viết mới nhất về Laravel.</p>
-                    <a href="{{ route('blog.index') }}" class="btn btn-primary btn-sm">Xem ngay</a>
+                    <a href="{{ route('posts.index') }}" class="btn btn-primary btn-sm">Xem ngay</a>
                 </div>
             </div>
         </div>
