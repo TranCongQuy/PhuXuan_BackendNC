@@ -47,6 +47,23 @@ class ArticleController extends Controller
         $article = $allArticles[$id];
         return view('articles.show', compact('article'));
     }
+    public function edit(string $id)
+    {
+        // Dữ liệu giả
+        $allArticles = [
+            1 => ['id' => 1, 'title' => 'Giới thiệu Laravel Framework', 'author' => 'Nguyễn Văn A', 'date' => '2024-01-15', 'content' => 'Laravel là một PHP framework mạnh mẽ.'],
+            2 => ['id' => 2, 'title' => 'Routing trong Laravel - Toàn tập', 'author' => 'Trần Thị B', 'date' => '2024-01-18', 'content' => 'Routing là cơ chế ánh xạ URL.'],
+            3 => ['id' => 3, 'title' => 'Blade Templates - Hướng dẫn chi tiết', 'author' => 'Lê Văn C', 'date' => '2024-01-22', 'content' => 'Blade là template engine mạnh mẽ.'],
+            4 => ['id' => 4, 'title' => 'Eloquent ORM - Làm việc với Database', 'author' => 'Phạm Thị D', 'date' => '2024-01-25', 'content' => 'Eloquent là ORM của Laravel.'],
+        ];
+
+        if (!isset($allArticles[$id])) {
+            abort(404, 'Bài viết không tồn tại');
+        }
+
+        $article = $allArticles[$id];
+        return view('articles.edit', compact('article'));
+    }
 
     // Các phương thức khác giữ nguyên (edit, update, destroy)
 }
