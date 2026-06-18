@@ -20,20 +20,9 @@
 
     {{-- MAIN CONTENT WITH FLASH MESSAGES --}}
     <div class="container mt-4">
-        {{-- ✅ FLASH MESSAGES (HIỂN THỊ TRỰC TIẾP TRONG LAYOUT) --}}
-        @foreach (['success', 'error', 'warning', 'info'] as $type)
-            @if (session($type))
-                <div class="alert alert-{{ $type }} alert-dismissible fade show" role="alert">
-                    @if ($type === 'success') ✅
-                    @elseif ($type === 'error') ❌
-                    @elseif ($type === 'warning') ⚠️
-                    @else ℹ️ @endif
-                    {{ session($type) }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
-        @endforeach
-        
+        {{-- ✅ CHỈ GIỮ DÒNG NÀY (XÓA VÒNG LẶP @foreach) --}}
+        @include('partials.flash-messages')
+
         {{-- NỘI DUNG CHÍNH --}}
         @yield('content')
     </div>
