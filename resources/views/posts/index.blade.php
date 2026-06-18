@@ -31,7 +31,7 @@
                             {{ Str::limit($post->content, 120) }}
                         </p>
                         <small class="text-muted">
-                            {{ $post->created_at->diffForHumans() }}
+                            {{ $post->created_at ? $post->created_at->diffForHumans() : 'Chưa có ngày' }}
                         </small>
                     </div>
                     <div class="d-flex gap-2 flex-shrink-0">

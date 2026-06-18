@@ -13,12 +13,11 @@ class UpdatePostRequest extends FormRequest
 
     public function rules(): array
     {
-        $post = $this->route('post'); // Lấy post từ route parameter
-
+        $post = $this->route('post');
         return [
             'title' => ['required', 'string', 'min:5', 'max:255'],
             'content' => ['required', 'string', 'min:10'],
-            // Nếu có slug, thêm unique ignore
+            // 'slug' => ['required', 'unique:posts,slug,' . $post->id],
         ];
     }
 
