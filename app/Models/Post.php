@@ -9,12 +9,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-// ✅ Import các Model liên quan
-use App\Models\User;
-use App\Models\Category;
-use App\Models\Tag;
-use App\Models\Comment;
-
 class Post extends Model
 {
     use HasFactory, SoftDeletes;
@@ -35,31 +29,26 @@ class Post extends Model
         'status' => 'string',
     ];
 
-    // Quan hệ với User (tác giả)
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    // Quan hệ với Category
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
-    // Quan hệ với Tags (nhiều-nhiều)
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class);
     }
 
-    // Quan hệ với Comments (1-nhiều)
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
     }
 
-    // Lọc chỉ lấy comments đã được duyệt
     public function approvedComments(): HasMany
     {
         return $this->hasMany(Comment::class)->where('is_approved', true);

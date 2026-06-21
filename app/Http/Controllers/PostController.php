@@ -11,7 +11,8 @@ class PostController extends Controller
 {
     public function index()
     {
-        $posts = Post::latest()->paginate(10);
+        // ✅ Eager load tags để tránh N+1
+        $posts = Post::with('tags')->latest()->paginate(10);
         return view('posts.index', compact('posts'));
     }
 
@@ -34,9 +35,9 @@ class PostController extends Controller
 
     public function show(Post $post)
     {
-        // Load approved comments và user của từng comment
-        $post->load(['approvedComments.user']);
-        // Đếm số comment (kể cả chưa duyệt)
+        // ✅ Eager load: approvedComments + user của comment + tags
+        $post->load(['approvedComments.user', 'tags']);
+        // ✅ Đếm số comment (kể cả chưa duyệt)
         $post->loadCount('comments');
 
         return view('posts.show', compact('post'));

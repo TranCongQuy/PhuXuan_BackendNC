@@ -40,6 +40,15 @@
                         <small class="text-muted">
                             {{ $post->created_at ? $post->created_at->diffForHumans() : 'Chưa có ngày' }}
                         </small>
+
+                        {{-- ✅ HIỂN THỊ TAGS (Lab 2) --}}
+                        @if($post->tags->isNotEmpty())
+                            <div class="mt-1">
+                                @foreach($post->tags as $tag)
+                                    <span class="badge bg-secondary me-1">#{{ $tag->name }}</span>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
                     <div class="d-flex gap-2 flex-shrink-0">
                         <a href="{{ route('posts.edit', $post) }}"

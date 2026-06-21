@@ -1,4 +1,4 @@
-@extends('layouts.app')
+ @extends('layouts.app')
 
 @section('title', $post->title)
 
@@ -41,6 +41,16 @@
             <div style="line-height:1.8; white-space:pre-wrap;">
                 {{ $post->content }}
             </div>
+
+            {{-- ✅ HIỂN THỊ TAGS (Lab 2) --}}
+            @if($post->tags->isNotEmpty())
+                <div class="mt-3">
+                    <strong>🏷️ Tags:</strong>
+                    @foreach($post->tags as $tag)
+                        <span class="badge bg-info text-dark me-1">#{{ $tag->name }}</span>
+                    @endforeach
+                </div>
+            @endif
         </div>
         <div class="card-footer text-end">
             <a href="{{ route('posts.index') }}" class="text-muted">
@@ -49,7 +59,7 @@
         </div>
     </article>
 
-    {{-- PHẦN BÌNH LUẬN --}}
+    {{-- PHẦN BÌNH LUẬN (Lab 1) --}}
     <div class="mt-5">
         <h3>💬 Bình luận ({{ $post->comments_count ?? 0 }})</h3>
 
