@@ -48,5 +48,26 @@
             </a>
         </div>
     </article>
+
+    {{-- PHẦN BÌNH LUẬN --}}
+    <div class="mt-5">
+        <h3>💬 Bình luận ({{ $post->comments_count ?? 0 }})</h3>
+
+        @forelse($post->approvedComments as $comment)
+            <div class="card mb-2 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <strong>{{ $comment->user->name ?? 'Người dùng ẩn danh' }}</strong>
+                        <small class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
+                    </div>
+                    <p class="mb-0 mt-2">{{ $comment->body }}</p>
+                </div>
+            </div>
+        @empty
+            <div class="alert alert-secondary">
+                Chưa có bình luận nào. Hãy là người đầu tiên bình luận!
+            </div>
+        @endforelse
+    </div>
 </div>
 @endsection

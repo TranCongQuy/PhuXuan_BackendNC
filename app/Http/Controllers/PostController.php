@@ -24,7 +24,7 @@ class PostController extends Controller
     {
         $data = $request->validated();
         $data['slug'] = Str::slug($data['title']);
-        $data['user_id'] = 1; // tạm thời hardcode, sau sẽ dùng auth()->id()
+        $data['user_id'] = 1; // tạm thời hardcode
 
         Post::create($data);
 
@@ -34,6 +34,11 @@ class PostController extends Controller
 
     public function show(Post $post)
     {
+        // Load approved comments và user của từng comment
+        $post->load(['approvedComments.user']);
+        // Đếm số comment (kể cả chưa duyệt)
+        $post->loadCount('comments');
+
         return view('posts.show', compact('post'));
     }
 
@@ -61,18 +66,12 @@ class PostController extends Controller
             ->with('success', 'Đã xóa bài viết!');
     }
 
-    /**
-     * Danh sách bài viết đã xóa (thùng rác)
-     */
     public function trashed()
     {
         $posts = Post::onlyTrashed()->latest('deleted_at')->paginate(10);
         return view('posts.trashed', compact('posts'));
     }
 
-    /**
-     * Khôi phục bài viết đã xóa
-     */
     public function restore($id)
     {
         $post = Post::onlyTrashed()->findOrFail($id);
