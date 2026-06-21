@@ -24,7 +24,7 @@ class PostController extends Controller
     {
         $data = $request->validated();
         $data['slug'] = Str::slug($data['title']);
-        $data['user_id'] = 1; // tạm thời hardcode
+        $data['user_id'] = 1; // tạm thời hardcode, sau sẽ dùng auth()->id()
 
         Post::create($data);
 
@@ -32,6 +32,7 @@ class PostController extends Controller
             ->with('success', 'Tạo bài viết thành công!');
     }
 
+    // ✅ Route Model Binding: Laravel tự tìm Post theo id trong URL
     public function show(Post $post)
     {
         return view('posts.show', compact('post'));
@@ -45,7 +46,7 @@ class PostController extends Controller
     public function update(UpdatePostRequest $request, Post $post)
     {
         $data = $request->validated();
-        $data['slug'] = Str::slug($data['title']); // cập nhật slug khi title thay đổi
+        $data['slug'] = Str::slug($data['title']);
 
         $post->update($data);
 
@@ -55,10 +56,9 @@ class PostController extends Controller
 
     public function destroy(Post $post)
     {
-        $title = $post->title;
         $post->delete();
 
         return redirect()->route('posts.index')
-            ->with('success', 'Đã xóa bài viết: ' . $title);
+            ->with('success', 'Đã xóa bài viết!');
     }
 }
