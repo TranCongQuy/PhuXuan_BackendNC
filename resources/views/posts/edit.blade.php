@@ -1,4 +1,3 @@
-{{-- resources/views/posts/edit.blade.php --}}
 @extends('layouts.app')
 
 @section('title', 'Chỉnh sửa: ' . $post->title)
@@ -24,13 +23,8 @@
         </div>
     @endif
 
-    @if (session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-
     <div class="card shadow-sm">
         <div class="card-body p-4">
-            {{-- PUT request qua _method spoofing --}}
             <form method="POST" action="{{ route('posts.update', $post) }}">
                 @csrf
                 @method('PUT')
@@ -68,9 +62,7 @@
 
                 <hr>
                 <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-success px-4">
-                        ✅ Cập nhật
-                    </button>
+                    <button type="submit" class="btn btn-success px-4">✅ Cập nhật</button>
                     <a href="{{ route('posts.show', $post) }}" class="btn btn-light">Hủy</a>
                 </div>
             </form>

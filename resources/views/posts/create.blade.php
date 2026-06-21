@@ -1,4 +1,3 @@
-{{-- resources/views/posts/create.blade.php --}}
 @extends('layouts.app')
 
 @section('title', 'Tạo bài viết mới')
@@ -13,7 +12,7 @@
         </a>
     </div>
 
-    {{-- ① HIỂN THỊ TẤT CẢ LỖI (tổng hợp ở đầu form) --}}
+    {{-- HIỂN THỊ TẤT CẢ LỖI (validation errors) --}}
     @if ($errors->any())
         <div class="alert alert-danger">
             <strong>⚠ Vui lòng kiểm tra lại các trường sau:</strong>
@@ -25,22 +24,15 @@
         </div>
     @endif
 
-    {{-- FLASH: thông báo thành công --}}
-    @if (session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-
     <div class="card shadow-sm">
         <div class="card-body p-4">
             <form method="POST" action="{{ route('posts.store') }}">
                 @csrf
 
-                {{-- ② FIELD: Title --}}
                 <div class="mb-4">
                     <label for="title" class="form-label fw-bold">
                         Tiêu đề bài viết <span class="text-danger">*</span>
                     </label>
-
                     <input
                         type="text"
                         id="title"
@@ -49,25 +41,16 @@
                         class="form-control @error('title') is-invalid @enderror"
                         placeholder="Ví dụ: Hướng dẫn cài đặt Laravel 10..."
                     >
-
-                    {{-- ③ HIỂN THỊ LỖI CỦA TỪNG FIELD --}}
                     @error('title')
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
+                        <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
-
-                    <div class="form-text text-muted">
-                        Tối thiểu 5 ký tự, tối đa 255 ký tự.
-                    </div>
+                    <div class="form-text text-muted">Tối thiểu 5 ký tự, tối đa 255 ký tự.</div>
                 </div>
 
-                {{-- ④ FIELD: Content --}}
                 <div class="mb-4">
                     <label for="content" class="form-label fw-bold">
                         Nội dung <span class="text-danger">*</span>
                     </label>
-
                     <textarea
                         id="content"
                         name="content"
@@ -75,19 +58,15 @@
                         class="form-control @error('content') is-invalid @enderror"
                         placeholder="Nhập nội dung bài viết..."
                     >{{ old('content') }}</textarea>
-
                     @error('content')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
-
                     <div class="form-text text-muted">Tối thiểu 10 ký tự.</div>
                 </div>
 
                 <hr>
                 <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary px-4">
-                        💾 Lưu bài viết
-                    </button>
+                    <button type="submit" class="btn btn-primary px-4">💾 Lưu bài viết</button>
                     <a href="{{ route('posts.index') }}" class="btn btn-light">Hủy</a>
                 </div>
             </form>

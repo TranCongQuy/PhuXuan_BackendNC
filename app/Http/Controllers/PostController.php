@@ -32,7 +32,6 @@ class PostController extends Controller
             ->with('success', 'Tạo bài viết thành công!');
     }
 
-    // ✅ Route Model Binding: Laravel tự tìm Post theo id trong URL
     public function show(Post $post)
     {
         return view('posts.show', compact('post'));
@@ -60,5 +59,26 @@ class PostController extends Controller
 
         return redirect()->route('posts.index')
             ->with('success', 'Đã xóa bài viết!');
+    }
+
+    /**
+     * Danh sách bài viết đã xóa (thùng rác)
+     */
+    public function trashed()
+    {
+        $posts = Post::onlyTrashed()->latest('deleted_at')->paginate(10);
+        return view('posts.trashed', compact('posts'));
+    }
+
+    /**
+     * Khôi phục bài viết đã xóa
+     */
+    public function restore($id)
+    {
+        $post = Post::onlyTrashed()->findOrFail($id);
+        $post->restore();
+
+        return redirect()->route('posts.trashed')
+            ->with('success', 'Đã khôi phục bài viết!');
     }
 }

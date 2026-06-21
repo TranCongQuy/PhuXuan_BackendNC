@@ -18,10 +18,20 @@
     {{-- NAVBAR --}}
     @include('partials.navbar')
 
-    {{-- MAIN CONTENT WITH FLASH MESSAGES --}}
     <div class="container mt-4">
-        {{-- ✅ CHỈ GIỮ DÒNG NÀY (XÓA VÒNG LẶP @foreach) --}}
-        @include('partials.flash-messages')
+        {{-- FLASH MESSAGES (CHỈ HIỂN THỊ Ở ĐÂY) --}}
+        @foreach (['success', 'error', 'warning', 'info'] as $type)
+            @if (session($type))
+                <div class="alert alert-{{ $type }} alert-dismissible fade show" role="alert">
+                    @if ($type === 'success') ✅
+                    @elseif ($type === 'error') ❌
+                    @elseif ($type === 'warning') ⚠️
+                    @else ℹ️ @endif
+                    {{ session($type) }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+        @endforeach
 
         {{-- NỘI DUNG CHÍNH --}}
         @yield('content')
@@ -30,14 +40,13 @@
     {{-- FOOTER --}}
     @include('partials.footer')
 
-    {{-- BOOTSTRAP 5 JS (BẮT BUỘC CHO NÚT ĐÓNG ALERT) --}}
+    {{-- BOOTSTRAP 5 JS --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
     </script>
 
     {{-- AUTO-DISMISS FLASH SAU 5 GIÂY --}}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Tự động đóng alert sau 5 giây
             document.querySelectorAll('.alert-dismissible').forEach(function (alert) {
                 setTimeout(function () {
                     var bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
@@ -45,7 +54,6 @@
                 }, 5000);
             });
 
-            // Nhấn phím ESC để đóng alert
             document.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape') {
                     document.querySelectorAll('.alert-dismissible').forEach(function (alert) {
@@ -57,7 +65,6 @@
         });
     </script>
 
-    {{-- STACK CHO SCRIPTS RIÊNG CỦA TỪNG TRANG --}}
     @stack('scripts')
 </body>
 </html>

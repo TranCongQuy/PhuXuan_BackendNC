@@ -5,7 +5,14 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="mb-0">📋 Danh sách bài viết</h2>
-    <a href="{{ route('posts.create') }}" class="btn btn-primary">+ Thêm bài viết</a>
+    <div>
+        <a href="{{ route('posts.trashed') }}" class="btn btn-outline-secondary me-2">
+            🗑️ Thùng rác
+        </a>
+        <a href="{{ route('posts.create') }}" class="btn btn-primary">
+            + Thêm bài viết
+        </a>
+    </div>
 </div>
 
 @if ($posts->isEmpty())
