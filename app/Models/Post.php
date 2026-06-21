@@ -10,13 +10,18 @@ class Post extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
-        'category_id',
         'title',
-        'slug',
+        'slug',               // ← phải có dòng này
         'content',
+        'category_id',
+        'user_id',
         'thumbnail',
         'status',
         'published_at',
+    ];
+
+    protected $casts = [
+        'published_at' => 'datetime',
+        'status' => 'string',
     ];
 }
