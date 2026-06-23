@@ -5,36 +5,39 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Models\Post;
+use App\Models\Category;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $posts = Post::select(
-            'id',
-            'title',
-            'slug',
-            'content',
-            'user_id',
-            'category_id',
-            'created_at',
-            'updated_at',
-            'status'
-        )
-            ->with([
-                'user:id,name',
-                'category:id,name',
-                'tags:id,name',
-            ])
+        $posts = Post::query()
+            ->published()
+            ->with(['user:id,name', 'category:id,name', 'tags:id,name'])
             ->withCount('comments')
-            ->where('status', 'published')
-            ->latest('published_at')
-            ->paginate(10);
+            ->when($request->search, function ($query, $search) {
+                $query->where('title', 'like', "%{$search}%");
+            })
+            ->when($request->category_id, function ($query, $categoryId) {
+                $query->ofCategory($categoryId);
+            })
+            ->when($request->sort === 'popular', function ($query) {
+                $query->popular();
+            }, function ($query) {
+                $query->orderByDesc('published_at');
+            })
+            ->paginate(10)
+            ->withQueryString();
 
-        return view('posts.index', compact('posts'));
+        // Lấy categories cho dropdown (có thể cache sau)
+        $categories = Category::select('id', 'name')->get();
+
+        return view('posts.index', compact('posts', 'categories'));
     }
 
+    // Các method khác giữ nguyên...
     public function create()
     {
         return view('posts.create');

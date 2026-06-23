@@ -15,6 +15,46 @@
     </div>
 </div>
 
+{{-- FORM TÌM KIẾM VÀ FILTER --}}
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
+        <form method="GET" action="{{ route('posts.index') }}" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">🔍 Tìm kiếm</label>
+                <input type="text" name="search" class="form-control"
+                       placeholder="Nhập từ khóa..."
+                       value="{{ request('search') }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">📂 Danh mục</label>
+                <select name="category_id" class="form-select">
+                    <option value="">Tất cả</option>
+                    @foreach ($categories as $cat)
+                        <option value="{{ $cat->id }}"
+                            {{ request('category_id') == $cat->id ? 'selected' : '' }}>
+                            {{ $cat->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">📅 Sắp xếp</label>
+                <select name="sort" class="form-select">
+                    <option value="newest" {{ request('sort') === 'newest' ? 'selected' : '' }}>Mới nhất</option>
+                    <option value="popular" {{ request('sort') === 'popular' ? 'selected' : '' }}>Phổ biến nhất</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">🔍 Tìm</button>
+            </div>
+            <div class="col-md-2">
+                <a href="{{ route('posts.index') }}" class="btn btn-outline-secondary w-100">🗑️ Xóa filter</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- DANH SÁCH BÀI VIẾT --}}
 @if ($posts->isEmpty())
     <div class="text-center py-5 text-muted">
         <p>Chưa có bài viết nào.</p>
@@ -34,20 +74,26 @@
                                 #{{ $loop->iteration }}. {{ $post->title }}
                             </a>
                         </h5>
-                        <p class="mb-1 text-muted small">
-                            {{ Str::limit($post->content, 120) }}
-                        </p>
-                        <small class="text-muted">
-                            ✍️ {{ $post->user->name ?? 'Ẩn danh' }} · 
-                            📅 {{ $post->created_at ? $post->created_at->diffForHumans() : 'Chưa có ngày' }}
-                        </small>
-                        <br>
-                        <span class="badge bg-secondary">{{ $post->comments_count }} bình luận</span>
 
+                        {{-- Hiển thị excerpt --}}
+                        <p class="mb-1 text-muted small">
+                            {{ $post->excerpt ?? Str::limit($post->content, 120) }}
+                        </p>
+
+                        {{-- Meta: tác giả, ngày, reading_time, comments --}}
+                        <div class="d-flex flex-wrap gap-3 text-muted small">
+                            <span>✍️ {{ $post->user->name ?? 'Ẩn danh' }}</span>
+                            <span>📅 {{ $post->published_at ? $post->published_at->format('d/m/Y') : 'Chưa xuất bản' }}</span>
+                            <span>⏱️ {{ $post->reading_time }}</span> {{-- Accessor --}}
+                            <span>💬 {{ $post->comments_count }} bình luận</span>
+                            <span>👁️ {{ number_format($post->views_count ?? 0) }} lượt xem</span>
+                        </div>
+
+                        {{-- Tags --}}
                         @if($post->tags->isNotEmpty())
                             <div class="mt-1">
                                 @foreach($post->tags as $tag)
-                                    <span class="badge bg-info text-dark me-1">#{{ $tag->name }}</span>
+                                    <span class="badge bg-secondary me-1">#{{ $tag->name }}</span>
                                 @endforeach
                             </div>
                         @endif
@@ -61,15 +107,15 @@
                               onsubmit="return confirm('Bạn có chắc muốn xóa bài viết: {{ $post->title }}?')">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-outline-danger">
-                                🗑️ Xóa
-                            </button>
+                            <button type="submit" class="btn btn-sm btn-outline-danger">🗑️ Xóa</button>
                         </form>
                     </div>
                 </div>
             </div>
         @endforeach
     </div>
+
+    {{-- PHÂN TRANG --}}
     <div class="mt-4 d-flex justify-content-center">
         {{ $posts->links() }}
     </div>
