@@ -17,11 +17,13 @@ class Post extends Model
         'title',
         'slug',
         'content',
+        'excerpt',          // ✅ THÊM excerpt
         'category_id',
         'user_id',
         'thumbnail',
         'status',
         'published_at',
+        'views_count',      // ✅ THÊM views_count
     ];
 
     protected $casts = [
