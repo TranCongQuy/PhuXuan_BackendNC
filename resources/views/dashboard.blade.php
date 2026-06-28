@@ -14,20 +14,13 @@
                 <div class="card-body text-center">
                     <h5 class="card-title">📝 Bài viết</h5>
                     @php
-                        // Admin (user_id = 1) thấy toàn bộ bài viết
-                        // User thường chỉ thấy bài viết của mình
-                        $userId = Auth::id();
-                        if ($userId == 1) {
-                            $postCount = \App\Models\Post::count();
-                            $label = 'Tổng số bài viết';
-                        } else {
-                            $postCount = \App\Models\Post::where('user_id', $userId)->count();
-                            $label = 'Bài viết của bạn';
-                        }
+                        // Luôn đếm số bài viết của user hiện tại
+                        $postCount = \App\Models\Post::where('user_id', Auth::id())->count();
+                        $label = 'Bài viết của bạn';
                     @endphp
                     <p class="display-6">{{ $postCount }}</p>
                     <p class="text-muted small">{{ $label }}</p>
-                    <a href="{{ route('posts.index') }}" class="btn btn-primary btn-sm">Xem tất cả</a>
+                    <a href="{{ route('posts.index', ['mine' => 1]) }}" class="btn btn-primary btn-sm">Xem tất cả</a>
                 </div>
             </div>
         </div>

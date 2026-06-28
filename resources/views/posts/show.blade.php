@@ -1,4 +1,4 @@
- @extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', $post->title)
 
@@ -8,7 +8,8 @@
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
-                <a href="{{ route('posts.index') }}">📋 Danh sách</a>
+                {{-- SỬA: về danh sách bài viết của user (mine=1) --}}
+                <a href="{{ route('posts.index', ['mine' => 1]) }}">📋 Danh sách</a>
             </li>
             <li class="breadcrumb-item active">
                 {{ Str::limit($post->title, 40) }}
@@ -21,14 +22,18 @@
              style="background:#1B2A4A;">
             <h4 class="mb-0 text-white">{{ $post->title }}</h4>
             <div class="d-flex gap-2">
-                <a href="{{ route('posts.edit', $post) }}"
-                   class="btn btn-sm btn-light">✏️ Sửa</a>
-                <form method="POST" action="{{ route('posts.destroy', $post) }}"
-                      onsubmit="return confirm('Xóa bài viết: {{ $post->title }}?')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-sm btn-danger">🗑️ Xóa</button>
-                </form>
+                @auth
+                    @if (Auth::id() === $post->user_id || Auth::id() == 1)
+                        <a href="{{ route('posts.edit', $post) }}"
+                           class="btn btn-sm btn-light">✏️ Sửa</a>
+                        <form method="POST" action="{{ route('posts.destroy', $post) }}"
+                              onsubmit="return confirm('Xóa bài viết: {{ $post->title }}?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-sm btn-danger">🗑️ Xóa</button>
+                        </form>
+                    @endif
+                @endauth
             </div>
         </div>
         <div class="card-body p-4">
@@ -53,7 +58,8 @@
             @endif
         </div>
         <div class="card-footer text-end">
-            <a href="{{ route('posts.index') }}" class="text-muted">
+            {{-- SỬA: về danh sách bài viết của user (mine=1) --}}
+            <a href="{{ route('posts.index', ['mine' => 1]) }}" class="text-muted">
                 ← Quay lại danh sách
             </a>
         </div>

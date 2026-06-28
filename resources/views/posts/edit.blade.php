@@ -5,9 +5,13 @@
 @section('content')
 <div class="container mt-4" style="max-width: 760px;">
 
+    @php
+        $mineParam = request()->has('mine') ? ['mine' => 1] : [];
+    @endphp
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>✏️ Chỉnh sửa bài viết</h2>
-        <a href="{{ route('posts.show', $post) }}" class="btn btn-outline-secondary">
+        <a href="{{ route('posts.show', array_merge(['post' => $post], $mineParam)) }}" class="btn btn-outline-secondary">
             ← Xem bài viết
         </a>
     </div>
@@ -61,9 +65,17 @@
                 </div>
 
                 <hr>
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 flex-wrap align-items-center">
                     <button type="submit" class="btn btn-success px-4">✅ Cập nhật</button>
-                    <a href="{{ route('posts.show', $post) }}" class="btn btn-light">Hủy</a>
+                    <a href="{{ route('posts.show', array_merge(['post' => $post], $mineParam)) }}" class="btn btn-light">Hủy</a>
+
+                    @if (Auth::id() == 1 && $post->status !== 'published')
+                        <form method="POST" action="{{ route('posts.publish', $post) }}" class="d-inline">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="btn btn-success">📢 Xuất bản</button>
+                        </form>
+                    @endif
                 </div>
             </form>
         </div>

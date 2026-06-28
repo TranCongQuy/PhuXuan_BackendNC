@@ -7,12 +7,21 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             {{-- Menu chính (đẩy sang phải) --}}
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="{{ route('home') }}">Trang chủ</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ route('about') }}">Giới thiệu</a></li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" 
+                       href="{{ route('home') }}">Trang chủ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}" 
+                       href="{{ route('about') }}">Giới thiệu</a>
+                </li>
                 
                 {{-- Link Bài viết: nếu chưa login → mở modal --}}
                 @auth
-                    <li class="nav-item"><a class="nav-link" href="{{ route('posts.index') }}">Bài viết</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('posts.*') || request()->routeIs('categories.*') || request()->routeIs('articles.*') ? 'active' : '' }}" 
+                           href="{{ route('posts.index') }}">Bài viết</a>
+                    </li>
                 @else
                     <li class="nav-item">
                         <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginRequiredModal">
@@ -23,7 +32,10 @@
 
                 {{-- Link Cửa hàng: nếu chưa login → mở modal --}}
                 @auth
-                    <li class="nav-item"><a class="nav-link" href="{{ route('shop.products') }}">Cửa hàng</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('shop.*') ? 'active' : '' }}" 
+                           href="{{ route('shop.products') }}">Cửa hàng</a>
+                    </li>
                 @else
                     <li class="nav-item">
                         <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginRequiredModal">
@@ -32,7 +44,10 @@
                     </li>
                 @endauth
 
-                <li class="nav-item"><a class="nav-link" href="{{ route('contact') }}">Liên hệ</a></li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('contact') ? 'active' : '' }}" 
+                       href="{{ route('contact') }}">Liên hệ</a>
+                </li>
             </ul>
 
             {{-- Auth (phải) --}}

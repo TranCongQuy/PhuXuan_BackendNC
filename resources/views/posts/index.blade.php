@@ -84,18 +84,18 @@
                         @endif
                     </div>
                     <div class="d-flex gap-2 flex-shrink-0">
-                        <a href="{{ route('posts.show', $post) }}" class="btn btn-sm btn-outline-secondary">Xem</a>
+                        <a href="{{ route('posts.show', $post) }}s" class="btn btn-sm btn-outline-secondary">Xem</a>
                         @auth
-                            @if (Auth::id() === $post->user_id)
-                                <a href="{{ route('posts.edit', $post) }}" class="btn btn-sm btn-outline-primary">✏️ Sửa</a>
-                                <form method="POST" action="{{ route('posts.destroy', $post) }}"
-                                      onsubmit="return confirm('Xóa bài viết: {{ $post->title }}?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">🗑️ Xóa</button>
-                                </form>
-                            @endif
-                        @endauth
+    @if (Auth::id() === $post->user_id || Auth::id() == 1)
+        <a href="{{ route('posts.edit', $post) }}" class="btn btn-sm btn-outline-primary">✏️ Sửa</a>
+        <form method="POST" action="{{ route('posts.destroy', $post) }}"
+              onsubmit="return confirm('Xóa bài viết: {{ $post->title }}?')">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn btn-sm btn-outline-danger">🗑️ Xóa</button>
+        </form>
+    @endif
+@endauth
                     </div>
                 </div>
             </div>

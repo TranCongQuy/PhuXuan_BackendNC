@@ -22,7 +22,12 @@ class CheckPostOwner
             abort(404, 'Dữ liệu bài viết không hợp lệ.');
         }
 
-        // Ép kiểu về int để so sánh chính xác
+        // Admin (user_id = 1) có toàn quyền
+        if (Auth::id() == 1) {
+            return $next($request);
+        }
+
+        // Kiểm tra quyền sở hữu cho user thường
         if ((int) Auth::id() !== (int) $post->user_id) {
             abort(403, 'Bạn không có quyền thực hiện thao tác này.');
         }

@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ShopController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,14 +43,13 @@ Route::get('/dashboard', function () {
 // Chỉ index và show là public – show đặt SAU create để tránh xung đột
 Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
 
+// ─── CATEGORIES (công khai) ──────────────────────────────────
+Route::resource('categories', CategoryController::class)->only(['index', 'show']);
+
 // ─── SHOP ROUTES (public) ────────────────────────────────────
 Route::prefix('shop')->name('shop.')->group(function () {
-    Route::get('/products', function () {
-        return view('shop.products');
-    })->name('products');
-    Route::get('/cart', function () {
-        return view('shop.cart');
-    })->name('cart');
+    Route::get('/products', [ShopController::class, 'products'])->name('products');
+    Route::get('/cart', [ShopController::class, 'cart'])->name('cart');
 });
 
 // ─── PROTECTED POST ROUTES (cần login) ──────────────────────
@@ -67,6 +68,11 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/posts/{post}', [PostController::class, 'update'])->name('posts.update');
         Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
     });
+
+    // Thêm route publish (cần auth + owner, admin bypass trong middleware)
+    Route::patch('/posts/{post}/publish', [PostController::class, 'publish'])
+        ->name('posts.publish')
+        ->middleware('post.owner');
 });
 
 // ─── PUBLIC SHOW (đặt SAU tất cả route có path cụ thể) ──────

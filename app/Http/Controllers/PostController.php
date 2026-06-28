@@ -8,36 +8,42 @@ use App\Models\Post;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
     public function index(Request $request)
     {
-        $posts = Post::query()
-            ->published()
+        $query = Post::query()
             ->with(['user:id,name', 'category:id,name', 'tags:id,name'])
-            ->withCount('comments')
-            ->when($request->search, function ($query, $search) {
-                $query->where('title', 'like', "%{$search}%");
-            })
-            ->when($request->category_id, function ($query, $categoryId) {
-                $query->ofCategory($categoryId);
-            })
-            ->when($request->sort === 'popular', function ($query) {
-                $query->popular();
-            }, function ($query) {
-                $query->orderByDesc('published_at');
-            })
-            ->paginate(10)
-            ->withQueryString();
+            ->withCount('comments');
 
-        // Lấy categories cho dropdown (có thể cache sau)
+        if ($request->has('mine') && $request->mine == 1) {
+            $query->where('user_id', Auth::id());
+        } else {
+            if (!Auth::check() || Auth::id() != 1) {
+                $query->published();
+            }
+        }
+
+        $query->when($request->search, function ($q, $search) {
+            $q->where('title', 'like', "%{$search}%");
+        })
+            ->when($request->category_id, function ($q, $categoryId) {
+                $q->ofCategory($categoryId);
+            })
+            ->when($request->sort === 'popular', function ($q) {
+                $q->popular();
+            }, function ($q) {
+                $q->latest('published_at');
+            });
+
+        $posts = $query->paginate(10)->appends($request->query());
         $categories = Category::select('id', 'name')->get();
 
         return view('posts.index', compact('posts', 'categories'));
     }
 
-    // Các method khác giữ nguyên...
     public function create()
     {
         return view('posts.create');
@@ -47,7 +53,7 @@ class PostController extends Controller
     {
         $data = $request->validated();
         $data['slug'] = Str::slug($data['title']);
-        $data['user_id'] = 1;
+        $data['user_id'] = Auth::id();
 
         Post::create($data);
 
@@ -83,13 +89,21 @@ class PostController extends Controller
     {
         $post->delete();
 
-        return redirect()->route('posts.index')
+        // SỬA: quay về danh sách bài viết của user (mine=1)
+        return redirect()->route('posts.index', ['mine' => 1])
             ->with('success', 'Đã xóa bài viết!');
     }
 
-    public function trashed()
+    public function trashed(Request $request)
     {
-        $posts = Post::onlyTrashed()->latest('deleted_at')->paginate(10);
+        $query = Post::onlyTrashed()->latest('deleted_at');
+
+        // Nếu không phải admin, chỉ xem bài của mình
+        if (Auth::id() != 1) {
+            $query->where('user_id', Auth::id());
+        }
+
+        $posts = $query->paginate(10);
         return view('posts.trashed', compact('posts'));
     }
 
@@ -98,7 +112,19 @@ class PostController extends Controller
         $post = Post::onlyTrashed()->findOrFail($id);
         $post->restore();
 
-        return redirect()->route('posts.trashed')
+        // SỬA: quay về trang thùng rác (giữ mine=1 để quay lại đúng)
+        return redirect()->route('posts.trashed', ['mine' => 1])
             ->with('success', 'Đã khôi phục bài viết!');
+    }
+
+    public function publish(Post $post)
+    {
+        $post->update([
+            'status' => 'published',
+            'published_at' => now(),
+        ]);
+
+        return redirect()->route('posts.show', $post)
+            ->with('success', 'Bài viết đã được xuất bản.');
     }
 }
