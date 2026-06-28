@@ -8,7 +8,6 @@
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
-                {{-- SỬA: về danh sách bài viết của user (mine=1) --}}
                 <a href="{{ route('posts.index', ['mine' => 1]) }}">📋 Danh sách</a>
             </li>
             <li class="breadcrumb-item active">
@@ -47,7 +46,6 @@
                 {{ $post->content }}
             </div>
 
-            {{-- ✅ HIỂN THỊ TAGS (Lab 2) --}}
             @if($post->tags->isNotEmpty())
                 <div class="mt-3">
                     <strong>🏷️ Tags:</strong>
@@ -58,25 +56,87 @@
             @endif
         </div>
         <div class="card-footer text-end">
-            {{-- SỬA: về danh sách bài viết của user (mine=1) --}}
             <a href="{{ route('posts.index', ['mine' => 1]) }}" class="text-muted">
                 ← Quay lại danh sách
             </a>
         </div>
     </article>
 
-    {{-- PHẦN BÌNH LUẬN (Lab 1) --}}
+    {{-- PHẦN BÌNH LUẬN --}}
     <div class="mt-5">
         <h3>💬 Bình luận ({{ $post->comments_count ?? 0 }})</h3>
 
+        {{-- FORM BÌNH LUẬN --}}
+        @auth
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <form method="POST" action="{{ route('posts.comment', $post) }}">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="commentBody" class="form-label">Viết bình luận</label>
+                            <textarea
+                                id="commentBody"
+                                name="body"
+                                rows="3"
+                                class="form-control @error('body') is-invalid @enderror"
+                                placeholder="Nhập bình luận của bạn..."
+                            >{{ old('body') }}</textarea>
+                            @error('body')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <button type="submit" class="btn btn-primary">Gửi bình luận</button>
+                    </form>
+                </div>
+            </div>
+        @else
+            <div class="alert alert-info">
+                <a href="{{ route('login') }}">Đăng nhập</a> để bình luận.
+            </div>
+        @endauth
+
+        {{-- DANH SÁCH BÌNH LUẬN --}}
         @forelse($post->approvedComments as $comment)
-            <div class="card mb-2 shadow-sm">
+            <div class="card mb-2 shadow-sm" id="comment-{{ $comment->id }}">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
-                        <strong>{{ $comment->user->name ?? 'Người dùng ẩn danh' }}</strong>
-                        <small class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
+                        <div>
+                            <strong>{{ $comment->user->name ?? 'Người dùng ẩn danh' }}</strong>
+                            <small class="text-muted ms-2">{{ $comment->created_at->diffForHumans() }}</small>
+                        </div>
+                        @auth
+                            @if (Auth::id() === $comment->user_id || Auth::id() == 1)
+                                <div class="d-flex gap-1">
+                                    {{-- Nút sửa (icon thuần) --}}
+                                    <button class="btn btn-sm btn-link text-decoration-none p-0" onclick="editComment({{ $comment->id }})" title="Sửa bình luận">
+                                        ✏️
+                                    </button>
+                                    {{-- Nút xóa (icon thuần) --}}
+                                    <form method="POST" action="{{ route('comments.destroy', $comment) }}" class="d-inline"
+                                          onsubmit="return confirm('Xóa bình luận này?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-link text-decoration-none p-0 text-danger" title="Xóa bình luận">
+                                            🗑️
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
+                        @endauth
                     </div>
-                    <p class="mb-0 mt-2">{{ $comment->body }}</p>
+                    <div class="comment-body-{{ $comment->id }}">
+                        <p class="mb-0 mt-2">{{ $comment->body }}</p>
+                    </div>
+                    {{-- FORM SỬA BÌNH LUẬN (ẩn mặc định) --}}
+                    <div class="comment-edit-form-{{ $comment->id }}" style="display: none; margin-top: 10px;">
+                        <form method="POST" action="{{ route('comments.update', $comment) }}" class="d-flex gap-2">
+                            @csrf
+                            @method('PUT')
+                            <input type="text" name="body" value="{{ $comment->body }}" class="form-control form-control-sm" required>
+                            <button type="submit" class="btn btn-sm btn-primary">Lưu</button>
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="cancelEdit({{ $comment->id }})">Hủy</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         @empty
@@ -86,4 +146,16 @@
         @endforelse
     </div>
 </div>
+
+{{-- Script toggle form sửa --}}
+<script>
+function editComment(id) {
+    document.querySelector('.comment-body-' + id).style.display = 'none';
+    document.querySelector('.comment-edit-form-' + id).style.display = 'block';
+}
+function cancelEdit(id) {
+    document.querySelector('.comment-body-' + id).style.display = 'block';
+    document.querySelector('.comment-edit-form-' + id).style.display = 'none';
+}
+</script>
 @endsection

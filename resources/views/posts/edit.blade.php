@@ -5,14 +5,10 @@
 @section('content')
 <div class="container mt-4" style="max-width: 760px;">
 
-    @php
-        $mineParam = request()->has('mine') ? ['mine' => 1] : [];
-    @endphp
-
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>✏️ Chỉnh sửa bài viết</h2>
-        <a href="{{ route('posts.show', array_merge(['post' => $post], $mineParam)) }}" class="btn btn-outline-secondary">
-            ← Xem bài viết
+        <a href="{{ route('posts.index', ['mine' => 1]) }}" class="btn btn-outline-secondary">
+            ← Quay lại danh sách
         </a>
     </div>
 
@@ -29,7 +25,8 @@
 
     <div class="card shadow-sm">
         <div class="card-body p-4">
-            <form method="POST" action="{{ route('posts.update', $post) }}">
+            {{-- FORM CẬP NHẬT --}}
+            <form method="POST" action="{{ route('posts.update', $post) }}" id="updateForm">
                 @csrf
                 @method('PUT')
 
@@ -65,19 +62,24 @@
                 </div>
 
                 <hr>
-                <div class="d-flex gap-2 flex-wrap align-items-center">
-                    <button type="submit" class="btn btn-success px-4">✅ Cập nhật</button>
-                    <a href="{{ route('posts.show', array_merge(['post' => $post], $mineParam)) }}" class="btn btn-light">Hủy</a>
-
-                    @if (Auth::id() == 1 && $post->status !== 'published')
-                        <form method="POST" action="{{ route('posts.publish', $post) }}" class="d-inline">
-                            @csrf
-                            @method('PATCH')
-                            <button type="submit" class="btn btn-success">📢 Xuất bản</button>
-                        </form>
-                    @endif
+                {{-- Hàng nút bấm (chỉ chứa nút Cập nhật và Hủy) --}}
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <button type="submit" form="updateForm" class="btn btn-success px-4">✅ Cập nhật</button>
+                    <a href="{{ route('posts.index', ['mine' => 1]) }}" class="btn btn-light">Hủy</a>
                 </div>
             </form>
+            {{-- Kết thúc form cập nhật --}}
+
+            {{-- FORM XUẤT BẢN (riêng biệt) --}}
+            @if (Auth::id() == 1 && $post->status !== 'published')
+                <div class="mt-3 d-flex justify-content-end">
+                    <form method="POST" action="{{ route('posts.publish', $post) }}" class="d-inline">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit" class="btn btn-success">📢 Xuất bản</button>
+                    </form>
+                </div>
+            @endif
         </div>
     </div>
 </div>

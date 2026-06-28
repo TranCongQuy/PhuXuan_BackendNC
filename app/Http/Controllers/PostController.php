@@ -6,6 +6,7 @@ use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Models\Post;
 use App\Models\Category;
+use App\Models\Comment; // 👈 THÊM
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
@@ -57,7 +58,7 @@ class PostController extends Controller
 
         Post::create($data);
 
-        return redirect()->route('posts.index')
+        return redirect()->route('posts.index', ['mine' => 1])
             ->with('success', 'Tạo bài viết thành công!');
     }
 
@@ -81,7 +82,7 @@ class PostController extends Controller
 
         $post->update($data);
 
-        return redirect()->route('posts.show', $post)
+        return redirect()->route('posts.index', ['mine' => 1])
             ->with('success', 'Cập nhật bài viết thành công!');
     }
 
@@ -89,7 +90,6 @@ class PostController extends Controller
     {
         $post->delete();
 
-        // SỬA: quay về danh sách bài viết của user (mine=1)
         return redirect()->route('posts.index', ['mine' => 1])
             ->with('success', 'Đã xóa bài viết!');
     }
@@ -98,7 +98,6 @@ class PostController extends Controller
     {
         $query = Post::onlyTrashed()->latest('deleted_at');
 
-        // Nếu không phải admin, chỉ xem bài của mình
         if (Auth::id() != 1) {
             $query->where('user_id', Auth::id());
         }
@@ -112,7 +111,6 @@ class PostController extends Controller
         $post = Post::onlyTrashed()->findOrFail($id);
         $post->restore();
 
-        // SỬA: quay về trang thùng rác (giữ mine=1 để quay lại đúng)
         return redirect()->route('posts.trashed', ['mine' => 1])
             ->with('success', 'Đã khôi phục bài viết!');
     }
@@ -124,7 +122,53 @@ class PostController extends Controller
             'published_at' => now(),
         ]);
 
+        return redirect()->route('posts.index', ['mine' => 1])
+            ->with('success', 'Bài viết đã được xuất bản!');
+    }
+
+    // 👇 COMMENT METHODS
+    public function storeComment(Request $request, Post $post)
+    {
+        $request->validate([
+            'body' => 'required|min:3|max:1000',
+        ]);
+
+        $post->comments()->create([
+            'user_id' => Auth::id(),
+            'body' => $request->body,
+            'is_approved' => true,
+        ]);
+
         return redirect()->route('posts.show', $post)
-            ->with('success', 'Bài viết đã được xuất bản.');
+            ->with('success', 'Bình luận của bạn đã được đăng!');
+    }
+
+    public function updateComment(Request $request, Comment $comment)
+    {
+        if (Auth::id() !== $comment->user_id && Auth::id() !== 1) {
+            abort(403, 'Bạn không có quyền sửa bình luận này.');
+        }
+
+        $request->validate([
+            'body' => 'required|min:3|max:1000',
+        ]);
+
+        $comment->update(['body' => $request->body]);
+
+        return redirect()->route('posts.show', $comment->post_id)
+            ->with('success', 'Bình luận đã được cập nhật.');
+    }
+
+    public function destroyComment(Comment $comment)
+    {
+        if (Auth::id() !== $comment->user_id && Auth::id() !== 1) {
+            abort(403, 'Bạn không có quyền xóa bình luận này.');
+        }
+
+        $postId = $comment->post_id;
+        $comment->delete();
+
+        return redirect()->route('posts.show', $postId)
+            ->with('success', 'Bình luận đã được xóa.');
     }
 }

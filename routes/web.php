@@ -33,50 +33,48 @@ Route::resource('articles', ArticleController::class);
 
 // ─── BLOG (Buổi 1) ───────────────────────────────────────────
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{id}', [BlogController::class, 'show'])->name('blog.show');
 
 // ─── DASHBOARD ─────────────────────────────────────────────────
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth'])->name('dashboard');
 
-// ─── PUBLIC POST ROUTES (không cần login) ───────────────────
-// Chỉ index và show là public – show đặt SAU create để tránh xung đột
+// ─── PUBLIC POST ROUTES ──────────────────────────────────────
 Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
 
-// ─── CATEGORIES (công khai) ──────────────────────────────────
+// ─── CATEGORIES ───────────────────────────────────────────────
 Route::resource('categories', CategoryController::class)->only(['index', 'show']);
 
-// ─── SHOP ROUTES (public) ────────────────────────────────────
+// ─── SHOP ROUTES ──────────────────────────────────────────────
 Route::prefix('shop')->name('shop.')->group(function () {
     Route::get('/products', [ShopController::class, 'products'])->name('products');
     Route::get('/cart', [ShopController::class, 'cart'])->name('cart');
 });
 
-// ─── PROTECTED POST ROUTES (cần login) ──────────────────────
+// ─── PROTECTED POST ROUTES ────────────────────────────────────
 Route::middleware(['auth'])->group(function () {
-    // create phải đặt TRƯỚC show và nằm trong auth
     Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
 
-    // Thùng rác & khôi phục (cần auth)
+    // Comment routes (thêm mới)
+    Route::post('/posts/{post}/comments', [PostController::class, 'storeComment'])->name('posts.comment');
+    Route::put('/comments/{comment}', [PostController::class, 'updateComment'])->name('comments.update');
+    Route::delete('/comments/{comment}', [PostController::class, 'destroyComment'])->name('comments.destroy');
+
     Route::get('/posts/trashed', [PostController::class, 'trashed'])->name('posts.trashed');
     Route::patch('/posts/{id}/restore', [PostController::class, 'restore'])->name('posts.restore');
 
-    // Sửa / Xóa (cần auth + owner)
     Route::middleware(['post.owner'])->group(function () {
         Route::get('/posts/{post}/edit', [PostController::class, 'edit'])->name('posts.edit');
         Route::put('/posts/{post}', [PostController::class, 'update'])->name('posts.update');
         Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
+        Route::patch('/posts/{post}/publish', [PostController::class, 'publish'])->name('posts.publish');
     });
-
-    // Thêm route publish (cần auth + owner, admin bypass trong middleware)
-    Route::patch('/posts/{post}/publish', [PostController::class, 'publish'])
-        ->name('posts.publish')
-        ->middleware('post.owner');
 });
 
-// ─── PUBLIC SHOW (đặt SAU tất cả route có path cụ thể) ──────
+// ─── PUBLIC SHOW ──────────────────────────────────────────────
 Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
 
-// ─── AUTH ROUTES (Breeze) ─────────────────────────────────────
+// ─── AUTH ROUTES ──────────────────────────────────────────────
 require __DIR__ . '/auth.php';
