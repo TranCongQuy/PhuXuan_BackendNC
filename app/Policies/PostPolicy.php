@@ -8,14 +8,13 @@ use App\Models\User;
 class PostPolicy
 {
     /**
-     * before() chạy trước mọi method khác
-     * Admin (user_id = 1) bypass tất cả
+     * before() – chạy TRƯỚC MỌI method khác trong Policy
+     * Admin bypass tất cả
      */
     public function before(User $user, string $ability): bool|null
     {
-        // Admin (id=1) được phép làm mọi thứ
-        if ($user->id === 1) {
-            return true;
+        if ($user->isAdmin()) {
+            return true; // Admin bypass tất cả
         }
         return null; // null = tiếp tục check method cụ thể
     }
@@ -36,24 +35,28 @@ class PostPolicy
         if ($post->status === 'published') {
             return true;
         }
-        // Bài draft: chỉ tác giả mới xem (nếu user đã đăng nhập)
         return $user?->id === $post->user_id;
     }
 
     /**
-     * Tạo bài mới: phải đăng nhập (User non-nullable)
+     * Tạo bài mới: phải đăng nhập
      */
     public function create(User $user): bool
     {
-        return true; // Mọi user đăng nhập đều tạo được
+        return true;
     }
 
     /**
-     * Sửa bài: chỉ tác giả (admin đã bypass qua before)
+     * Sửa bài: editor sửa được tất cả, user thường chỉ sửa của mình
      */
     public function update(User $user, Post $post): bool
     {
-        return $user->id === $post->user_id;
+        // Editor (admin hoặc editor) được sửa tất cả bài
+        if ($user->isEditor()) {
+            return true;
+        }
+        // User thường: chỉ sửa bài của mình
+        return $user->owns($post);
     }
 
     /**
@@ -61,7 +64,7 @@ class PostPolicy
      */
     public function delete(User $user, Post $post): bool
     {
-        return $user->id === $post->user_id;
+        return $user->owns($post);
     }
 
     /**
@@ -69,7 +72,7 @@ class PostPolicy
      */
     public function restore(User $user, Post $post): bool
     {
-        return $user->id === $post->user_id;
+        return $user->owns($post);
     }
 
     /**
@@ -77,6 +80,6 @@ class PostPolicy
      */
     public function forceDelete(User $user, Post $post): bool
     {
-        return $user->id === $post->user_id;
+        return $user->owns($post);
     }
 }

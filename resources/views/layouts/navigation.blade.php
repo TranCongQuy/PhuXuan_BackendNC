@@ -53,22 +53,34 @@
             {{-- Auth (phải) --}}
             <ul class="navbar-nav ms-2">
                 @auth
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                            👤 {{ Auth::user()->name }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="{{ route('dashboard') }}">📊 Dashboard</a></li>
-                            <li><a class="dropdown-item" href="{{ route('posts.create') }}">✏️ Viết bài mới</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit" class="dropdown-item">🚪 Đăng xuất</button>
-                                </form>
-                            </li>
-                        </ul>
-                    </li>
+              <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+        👤 {{ Auth::user()->name }}
+        {{-- BADGE ROLE --}}
+        @php
+            $role = Auth::user()->role ?? 'user';
+        @endphp
+        <span class="badge 
+            @if($role === 'admin') bg-danger 
+            @elseif($role === 'editor') bg-warning text-dark 
+            @else bg-secondary 
+            @endif
+            ms-1">
+            {{ ucfirst($role) }}
+        </span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="{{ route('dashboard') }}">📊 Dashboard</a></li>
+        <li><a class="dropdown-item" href="{{ route('posts.create') }}">✏️ Viết bài mới</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="dropdown-item">🚪 Đăng xuất</button>
+            </form>
+        </li>
+    </ul>
+</li>
                 @else
                     <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">🔑 Đăng nhập</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ route('register') }}">📝 Đăng ký</a></li>

@@ -16,9 +16,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'title',
-        'content',
-        'user_id',
+        'role', // 👈 THÊM
     ];
 
     protected $hidden = [
@@ -30,7 +28,23 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    // 👇 THÊM CÁC QUAN HỆ SAU ĐÂY
+    // 👇 THÊM HELPER METHODS
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isEditor(): bool
+    {
+        return in_array($this->role, ['admin', 'editor']);
+    }
+
+    public function owns(Post $post): bool
+    {
+        return $this->id === $post->user_id;
+    }
+
+    // Relationships
     public function posts()
     {
         return $this->hasMany(Post::class);

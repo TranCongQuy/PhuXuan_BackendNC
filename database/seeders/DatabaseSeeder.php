@@ -8,13 +8,14 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Thứ tự QUAN TRỌNG: User → Category → Tag → Post → Comment
+        // Thứ tự QUAN TRỌNG
         $this->call([
             UserSeeder::class,
             CategorySeeder::class,
-            TagSeeder::class,      // Tags cần tồn tại trước khi gán cho Post
+            TagSeeder::class,
             PostSeeder::class,
             CommentSeeder::class,
+            RoleSeeder::class, // 👈 THÊM (chạy sau để không xóa dữ liệu quan trọng)
         ]);
     }
 }
