@@ -85,11 +85,9 @@
                     </div>
                     <div class="d-flex gap-2 flex-shrink-0">
                         <a href="{{ route('posts.show', $post) }}" class="btn btn-sm btn-outline-secondary">Xem</a>
-                        
                         @can('update-post', $post)
                             <a href="{{ route('posts.edit', $post) }}" class="btn btn-sm btn-outline-primary">✏️ Sửa</a>
                         @endcan
-                        
                         @can('delete-post', $post)
                             <form method="POST" action="{{ route('posts.destroy', $post) }}"
                                   onsubmit="return confirm('Xóa bài viết: {{ $post->title }}?')">

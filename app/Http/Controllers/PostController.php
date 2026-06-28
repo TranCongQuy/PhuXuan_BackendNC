@@ -71,9 +71,9 @@ class PostController extends Controller
         return view('posts.show', compact('post'));
     }
 
+    // 👇 SỬA: thêm Gate check
     public function edit(Post $post)
     {
-        // Kiểm tra Gate – nếu không có quyền thì abort 403
         if (!Gate::allows('update-post', $post)) {
             abort(403, 'Bạn không có quyền chỉnh sửa bài viết này!');
         }
@@ -81,9 +81,9 @@ class PostController extends Controller
         return view('posts.edit', compact('post'));
     }
 
+    // 👇 SỬA: thêm Gate check
     public function update(UpdatePostRequest $request, Post $post)
     {
-        // Cách ngắn hơn: authorize tự ném exception
         Gate::authorize('update-post', $post);
 
         $data = $request->validated();
@@ -95,6 +95,7 @@ class PostController extends Controller
             ->with('success', 'Cập nhật bài viết thành công!');
     }
 
+    // 👇 SỬA: thêm Gate check
     public function destroy(Post $post)
     {
         if (!Gate::allows('delete-post', $post)) {
@@ -139,7 +140,7 @@ class PostController extends Controller
             ->with('success', 'Bài viết đã được xuất bản!');
     }
 
-    // 👇 COMMENT METHODS
+    // 👇 COMMENT METHODS (giữ nguyên)
     public function storeComment(Request $request, Post $post)
     {
         $request->validate([

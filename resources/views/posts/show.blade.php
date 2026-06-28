@@ -20,7 +20,7 @@
         <div class="card-header d-flex justify-content-between align-items-center py-3"
              style="background:#1B2A4A;">
             <h4 class="mb-0 text-white">{{ $post->title }}</h4>
-            <div class="d-flex gap-2">
+            <div class="d-flex gap-2 align-items-center">
                 @can('update-post', $post)
                     <a href="{{ route('posts.edit', $post) }}" class="btn btn-sm btn-light">✏️ Sửa</a>
                 @endcan
@@ -34,8 +34,9 @@
                     </form>
                 @endcan
 
+                {{-- SỬA: đổi text-muted thành text-white để nhìn rõ trên nền tối --}}
                 @cannot('update-post', $post)
-                    <small class="text-muted">🔒 Chỉ tác giả mới sửa được</small>
+                    <small class="text-white">🔒 Chỉ tác giả có quyền sửa bài viết này</small>
                 @endcannot
             </div>
         </div>
@@ -70,7 +71,6 @@
     <div class="mt-5">
         <h3>💬 Bình luận ({{ $post->comments_count ?? 0 }})</h3>
 
-        {{-- FORM BÌNH LUẬN --}}
         @auth
             <div class="card mb-4 shadow-sm">
                 <div class="card-body">
@@ -99,7 +99,6 @@
             </div>
         @endauth
 
-        {{-- DANH SÁCH BÌNH LUẬN --}}
         @forelse($post->approvedComments as $comment)
             <div class="card mb-2 shadow-sm" id="comment-{{ $comment->id }}">
                 <div class="card-body">
@@ -111,11 +110,9 @@
                         @auth
                             @if (Auth::id() === $comment->user_id || Auth::id() == 1)
                                 <div class="d-flex gap-1">
-                                    {{-- Nút sửa (icon thuần) --}}
                                     <button class="btn btn-sm btn-link text-decoration-none p-0" onclick="editComment({{ $comment->id }})" title="Sửa bình luận">
                                         ✏️
                                     </button>
-                                    {{-- Nút xóa (icon thuần) --}}
                                     <form method="POST" action="{{ route('comments.destroy', $comment) }}" class="d-inline"
                                           onsubmit="return confirm('Xóa bình luận này?')">
                                         @csrf
@@ -131,7 +128,6 @@
                     <div class="comment-body-{{ $comment->id }}">
                         <p class="mb-0 mt-2">{{ $comment->body }}</p>
                     </div>
-                    {{-- FORM SỬA BÌNH LUẬN (ẩn mặc định) --}}
                     <div class="comment-edit-form-{{ $comment->id }}" style="display: none; margin-top: 10px;">
                         <form method="POST" action="{{ route('comments.update', $comment) }}" class="d-flex gap-2">
                             @csrf
@@ -151,7 +147,6 @@
     </div>
 </div>
 
-{{-- Script toggle form sửa --}}
 <script>
 function editComment(id) {
     document.querySelector('.comment-body-' + id).style.display = 'none';
